@@ -61,13 +61,16 @@ def get_contestant_table(html):
 def remove_italics(cont_table, season_prem, season_loc):
     cont_table.find_all('caption')[-1].insert_after('<caption>{}</caption>'.format(season_loc))
     cont_table.find_all('caption')[-1].insert_after('<caption>{}</caption>'.format(season_prem))
+
     #Insert season premise and location into
     cap_index = str(cont_table).index('</caption>') + len('</caption>')
     cont_table = str(cont_table)[:cap_index] + '<caption>{}</caption>'.format(season_prem) + str(cont_table)[cap_index:]
     cont_table = bs(str(cont_table)[:cap_index] + '<caption>{}</caption>'.format(season_loc) + str(cont_table)[cap_index:])
+
     # Remove all footnotes
     cont_table_new = bs(re.sub(re.compile('\[.+\]'), '', str(cont_table))) # str(new_cont_table)
     cont_table_body = cont_table_new.find_all('tbody')[0]
+
     # Remove italics from Contestants Names
     new_cont_table_body = bs(re.sub(re.compile('<i>.+</i>'), '', str(cont_table_body)))
     new_html= bs(str(cont_table_new).replace(str(cont_table_body), str(new_cont_table_body)))
@@ -103,7 +106,6 @@ if __name__ == '__main__':
         ct_tuples = create_tuples(ct)
         st_tuples = create_tuples(st)
         for tup in st_tuples:
-            print(tup)
             cursor.execute("""INSERT INTO website_season VALUES {}""".format(tup))
         for tup in ct_tuples:
             tup = tuple([iter]) + tup
