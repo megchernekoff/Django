@@ -97,7 +97,7 @@ def main_function(num):
 if __name__ == '__main__':
     conn = create_connection('db.sqlite3')
     cursor = conn.cursor()
-
+    iter = 0
     for NUM in range(1, 43):
         ct, st = main_function(NUM)
         ct_tuples = create_tuples(ct)
@@ -106,7 +106,9 @@ if __name__ == '__main__':
             print(tup)
             cursor.execute("""INSERT INTO website_season VALUES {}""".format(tup))
         for tup in ct_tuples:
-            cursor.execute("""INSERT INTO website_contestants (contestant, age, hometown, season) VALUES {}""".format(tup))
+            tup = tuple([iter]) + tup
+            cursor.execute("""INSERT INTO website_contestants VALUES {}""".format(tup))
+            iter += 1
 
     conn.commit()
     conn.close()

@@ -9,6 +9,7 @@ class Season(models.Model):
     season_prem = models.CharField(max_length=2000, null=True)
 
 class Contestants(models.Model):
+    id = models.IntegerField(primary_key=True, null=False)
     contestant = models.CharField(max_length=50, null=True)
     age = models.IntegerField(default=20, null=True)
     hometown = models.CharField(max_length=100, null=True)
