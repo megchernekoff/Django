@@ -1,10 +1,14 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
 {% block title %} Results {% endblock %}
-
 {% block content %}
-<table>
-<caption>Season {{snum}}: {{sname}}</caption>
+
+<a href="/">Home</a>
+<br>
+<br>
+<div class="half-width">
+<table style="width:50%; text-align: center; border-collapse: collapse; ">
+<caption><b>Season {{snum}}: {{sname}}</b></caption>
 <caption>{{snprem}}</caption>
 
 <thead>
@@ -16,11 +20,12 @@
         </tr>
       </thead>
       {% for c, a, h in cont_info %}
-      <tr>
-      <td> {{c}} </td>
+      <tr style='border-collapse:collapse;'>
+      <td style="padding: .20em;"> {{c}} </td>
       <td> {{a}} </td>
       <td> {{h}} </td>
       </tr>
     {% endfor %}
   </table>
+  </div>
 {% endblock %}
