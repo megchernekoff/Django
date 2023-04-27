@@ -36,7 +36,7 @@ def results(request, season, shuffle):
     conn = get_conn('db.sqlite3')
     cont_df = get_table_info('db.sqlite3', 'website_contestants', season)
     seas_df = get_table_info('db.sqlite3', 'website_season', season)
-    # merge_df = seas_df.merge(cont_df, on='season_id', how='right')
+
     if shuffle:
         cont_df = cont_df.sample(frac=1)
     cont_list = cont_df['contestant'].tolist()

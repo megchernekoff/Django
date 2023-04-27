@@ -20,6 +20,6 @@ from website.views import home, results
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("home/", home, name='home'),
+    path("", home, name='home'),
     path("results/<int:season>/<str:shuffle>/", results, name='results'),
 ]
