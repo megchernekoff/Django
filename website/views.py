@@ -2,7 +2,6 @@ from django.shortcuts import render, redirect
 from .models import Contestants, Season
 from .forms import SeasonForm
 import sqlite3
-import random
 import pandas as pd
 
 def get_conn(db):
@@ -37,6 +36,15 @@ def results(request, season, shuffle):
     conn = get_conn('db.sqlite3')
     cont_df = get_table_info('db.sqlite3', 'website_contestants', season)
     seas_df = get_table_info('db.sqlite3', 'website_season', season)
-    print(seas_df)
+    # merge_df = seas_df.merge(cont_df, on='season_id', how='right')
+    if shuffle:
+        cont_df = cont_df.sample(frac=1)
+    cont_list = cont_df['contestant'].tolist()
+    age_list = cont_df['age'].tolist()
+    hometown_list = cont_df['hometown'].tolist()
+    cont_info = zip(cont_list, age_list, hometown_list)
+    snum, sname, snprem = seas_df.iloc[0].values
 
-    return render(request, 'website/results.html')
+    return render(request, 'website/results.html', {'cont_info':cont_info,
+                                                    'snum':snum, 'sname':sname,
+                                                    'snprem':snprem})

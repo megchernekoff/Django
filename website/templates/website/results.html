@@ -3,5 +3,24 @@
 {% block title %} Results {% endblock %}
 
 {% block content %}
-<h1>Landing Page</h1>
+<table>
+<caption>Season {{snum}}: {{sname}}</caption>
+<caption>{{snprem}}</caption>
+
+<thead>
+    <td scope='col' colspan="3" style='word-wrap: break-all;'>{{season_prem}}</td>
+				<tr style="text-align: center;">
+					<th>Contestant</th>
+					<th>Age</th>
+					<th>From</th>
+        </tr>
+      </thead>
+      {% for c, a, h in cont_info %}
+      <tr>
+      <td> {{c}} </td>
+      <td> {{a}} </td>
+      <td> {{h}} </td>
+      </tr>
+    {% endfor %}
+  </table>
 {% endblock %}
