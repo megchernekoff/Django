@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %} Games {% endblock %}
+
+{% block content %}
+<script>
+  const myarray = [...Array(44).keys()];
+  console.log(myarray.slice(1, myarray.length))
+  </script>
+<h1>Games Test</h1>
+<ol>
+  {% for i in [1,2,3] %}
+  <li>{{i}}</li>
+{% endfor %}
+</ol>
+{% endblock %}

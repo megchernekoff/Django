@@ -3,6 +3,7 @@
 {% block title %}Welcome!{% endblock %}
 
 {% block content %}
+<a href='/games'> Games</a>
 <h1>Welcome!</h1>
 <p>Please select a season number</p>
 <form action='' method='post'>
@@ -10,6 +11,7 @@
 <p>
   {{ form.season }}
 </p>
+
 <p>
   Check to shuffle elimination order: {{ form.shuffle }}
   </p>

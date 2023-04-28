@@ -9,13 +9,14 @@ conn = sqlite3.connect('db.sqlite3')
 mylist = conn.execute("""select season_id, season_name from website_season;""").fetchall()
 TITLE_LIST = []
 for item in mylist:
-    TITLE_LIST.append('Season {}: {}'.format(item[0], item[1]))
+    TITLE_LIST.append((item[0], 'Season {}: {}'.format(item[0], item[1])))
+print(TITLE_LIST[0])
 
 
 class SeasonForm(forms.Form):
-    # season = forms.ChoiceField(required=True,
-    #                          widget=forms.Select(choices=TITLE_LIST))
-    season = forms.IntegerField(required=True)
+    season = forms.CharField(required=True,
+                             widget=forms.Select(choices=TITLE_LIST))
+    # season = forms.IntegerField(required=True)
     shuffle = forms.BooleanField(initial=False, required=False)
 
     def check_error(self):

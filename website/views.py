@@ -50,3 +50,6 @@ def results(request, season, shuffle):
     return render(request, 'website/results.html', {'cont_info':cont_info,
                                                     'snum':snum, 'sname':sname,
                                                     'snprem':snprem})
+
+def games(request):
+    return render(request, 'website/games.html')
