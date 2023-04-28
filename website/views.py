@@ -4,9 +4,11 @@ from .forms import SeasonForm
 import sqlite3
 import pandas as pd
 
+
 def get_conn(db):
     conn = sqlite3.connect(db)
     return conn
+
 
 def get_table_info(db, table, num):
     conn = get_conn(db)

@@ -58,15 +58,17 @@ def get_contestant_table(html):
     else:
         return('no contestant table')
 
-def remove_italics(cont_table, season_prem, season_loc):
+def remove_italics(cont_table, season_name, season_prem, season_loc):
     cont_table.find_all('caption')[-1].insert_after('<caption>{}</caption>'.format(season_loc))
     cont_table.find_all('caption')[-1].insert_after('<caption>{}</caption>'.format(season_prem))
 
-    #Insert season premise and location into
+    season_name = re.sub(re.compile('\[.+\]'), '', season_name)
+    season_prem = re.sub(re.compile('\[.+\]'), '', season_prem)
+    season_loc = re.sub(re.compile('\[.+\]'), '', season_loc)
+    #Insert season premise and location into html
     cap_index = str(cont_table).index('</caption>') + len('</caption>')
     cont_table = str(cont_table)[:cap_index] + '<caption>{}</caption>'.format(season_prem) + str(cont_table)[cap_index:]
     cont_table = bs(str(cont_table)[:cap_index] + '<caption>{}</caption>'.format(season_loc) + str(cont_table)[cap_index:])
-
     # Remove all footnotes
     cont_table_new = bs(re.sub(re.compile('\[.+\]'), '', str(cont_table))) # str(new_cont_table)
     cont_table_body = cont_table_new.find_all('tbody')[0]
@@ -74,7 +76,7 @@ def remove_italics(cont_table, season_prem, season_loc):
     # Remove italics from Contestants Names
     new_cont_table_body = bs(re.sub(re.compile('<i>.+</i>'), '', str(cont_table_body)))
     new_html= bs(str(cont_table_new).replace(str(cont_table_body), str(new_cont_table_body)))
-    return new_html
+    return new_html, season_name, season_loc, season_prem
 
 def get_clean_df(tab, snum, sname, snprem):
     df = pd.read_html(StringIO(str(tab)))[0]
@@ -84,6 +86,7 @@ def get_clean_df(tab, snum, sname, snprem):
     df = df.loc[df['Contestant'] != 0]
     df.rename(columns={'From':"Hometown"}, inplace=True)
     contest = df[['Contestant', 'Age', 'Hometown']]
+    contest['Hometown'] = contest['Hometown'].apply(lambda x: x.replace(',', ', '))
     contest['Season'] = snum
     seas = pd.DataFrame(data=[(snum, sname, snprem)], columns = ['Season', 'SeasonName', 'SeasonPremise'])
     return contest, seas
@@ -91,7 +94,7 @@ def get_clean_df(tab, snum, sname, snprem):
 def main_function(num):
     html, season_name, season_loc, season_prem = get_html(num)
     cont_table = get_contestant_table(html)
-    new_html = remove_italics(cont_table, season_prem, season_loc)
+    new_html, season_name, season_loc, season_prem = remove_italics(cont_table, season_name, season_prem, season_loc)
     new_cont_table = get_contestant_table(new_html)
     ct, st = get_clean_df(new_cont_table, num, season_name, season_prem)
     return ct, st
@@ -101,16 +104,17 @@ if __name__ == '__main__':
     conn = create_connection('db.sqlite3')
     cursor = conn.cursor()
     iter = 0
-    for NUM in range(1, 43):
-        ct, st = main_function(NUM)
-        ct_tuples = create_tuples(ct)
-        st_tuples = create_tuples(st)
-        for tup in st_tuples:
-            cursor.execute("""INSERT INTO website_season VALUES {}""".format(tup))
-        for tup in ct_tuples:
-            tup = tuple([iter]) + tup
-            cursor.execute("""INSERT INTO website_contestants VALUES {}""".format(tup))
-            iter += 1
-
-    conn.commit()
-    conn.close()
+    NUM = 1
+    # for NUM in range(1, 43):
+    ct, st = main_function(NUM)
+    #     ct_tuples = create_tuples(ct)
+    #     st_tuples = create_tuples(st)
+    #     for tup in st_tuples:
+    #         cursor.execute("""INSERT INTO website_season VALUES {}""".format(tup))
+    #     for tup in ct_tuples:
+    #         tup = tuple([iter]) + tup
+    #         cursor.execute("""INSERT INTO website_contestants VALUES {}""".format(tup))
+    #         iter += 1
+    #
+    # conn.commit()
+    # conn.close()
