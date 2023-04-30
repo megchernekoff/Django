@@ -1,7 +1,9 @@
 from django.shortcuts import render, redirect
 from .models import Contestants, Season
 from .forms import SeasonForm
+import numpy as np
 import sqlite3
+import json
 import pandas as pd
 
 
@@ -52,4 +54,23 @@ def results(request, season, shuffle):
                                                     'snprem':snprem})
 
 def games(request):
-    return render(request, 'website/games.html')
+    if request.method == 'POST':
+        form = SeasonForm(request.POST)
+        if form.is_valid() :
+            season = form.cleaned_data['season']
+            season_num = season
+            conn = get_conn('db.sqlite3')
+            df = pd.DataFrame(conn.execute("""select * from website_contestants where season_id = {}""".format(season_num)).fetchall())
+            cont_list = df[0].tolist()
+            print(cont_list)
+            np.random.shuffle(cont_list)
+            print(cont_list)
+            cont_num = np.arange(1, len(cont_list) + 1)
+            zip_cont_list = zip(cont_list, cont_num)
+            # cont_list.shuffle()
+
+            return render(request, 'website/games.html', {"form":form, "cont_num": cont_num, "zip_cont_list":zip_cont_list, 'allowed':'yes'})
+
+    else:
+        form = SeasonForm()
+        return render(request, 'website/games.html', {'form':form, 'allowed':'no'})

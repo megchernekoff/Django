@@ -3,14 +3,52 @@
 {% block title %} Games {% endblock %}
 
 {% block content %}
+
+<h1>Elimination Order</h1>
+<p>Please select a season number</p>
+<form action='' method='post'>
+{% csrf_token %}
+<p id = 'myp' onclick="myFunction()">
+  {{ form.season }}
+</p>
+<button type='submit'>Start Game</button>
+</form>
+
+{% if allowed == 'yes' %}
+<p>1 = first eliminated; {{cont_num | length}} = winner
+  </p>
+<form method='POST'>
+  <table style="width: 30%;">
+    <tbody>
+    {% for a, b in zip_cont_list %}
+    <tr>
+      <td style='width:75%'>{{a}}</td>
+      <td>
+        <select>
+          {% for num in cont_num %}
+            {% if num == b %}
+            <option value={{num}} selected>{{num}}</option>
+            {% else %}
+            <option value={{num}}>{{num}}</option>
+            {% endif %}
+
+          {% endfor %}
+        </select>
+       </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <p>
+  <button type='submit'>Submit</button>
+  </p>
+</form>
+  {% endif %}
 <script>
-  const myarray = [...Array(44).keys()];
-  console.log(myarray.slice(1, myarray.length))
+  function myFunction() {
+    var id = document.getElementById('myp')
+    console.log(id)
+  };
   </script>
-<h1>Games Test</h1>
-<ol>
-  {% for i in [1,2,3] %}
-  <li>{{i}}</li>
-{% endfor %}
-</ol>
+
 {% endblock %}
