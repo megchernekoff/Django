@@ -3,3 +3,4 @@ pandas
 numpy
 requests
 bs4
+re
