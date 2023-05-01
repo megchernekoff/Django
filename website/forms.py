@@ -10,13 +10,11 @@ mylist = conn.execute("""select season_id, season_name from website_season;""").
 TITLE_LIST = []
 for item in mylist:
     TITLE_LIST.append((item[0], 'Season {}: {}'.format(item[0], item[1])))
-print(TITLE_LIST[0])
 
 
 class SeasonForm(forms.Form):
     season = forms.CharField(required=True,
-                             widget=forms.Select(choices=TITLE_LIST))
-    # season = forms.IntegerField(required=True)
+                             widget=forms.Select(choices=TITLE_LIST), initial=2)
     shuffle = forms.BooleanField(initial=False, required=False)
 
     def check_error(self):

@@ -15,3 +15,6 @@ class Contestants(models.Model):
     age = models.IntegerField(default=20, null=True)
     hometown = models.CharField(max_length=100, null=True)
     season = models.ForeignKey(Season, on_delete=models.CASCADE)
+
+class Results(models.Model):
+    number = models.IntegerField(default=1)
