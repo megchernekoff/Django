@@ -96,9 +96,9 @@ def games(request):
                 # return render(request, 'website/games.html', {"form":form, "cont_num": cont_num, "zip_cont_list":zip_cont_list, 'allowed':'yes'})
         if 'submitanswer' in request.POST:
             form = SeasonForm(request.POST)
-            print(form)
+            # print(form)
             s = request.POST.get('season')
-            print(s)
+            # print(s)
             current_url = request.build_absolute_uri()
             return render(request, 'website/games.html', {'form':form})
     else:
@@ -107,18 +107,33 @@ def games(request):
 
 def games_pick(request, season):
     if request.method == 'POST':
+        print(request.POST.get(season))
         form = SeasonForm(request.POST)
         if form.is_valid():
             season = form.cleaned_data['season']
-            print(season)
             order_dict, zip_list, cont_ind_list = get_contestants_info('db.sqlite3', season)
             return redirect('/games/{}/'.format(season),
                             {'form':form, 'season':season, 'zip_list':zip_list,
                             'cont_ind_list':cont_ind_list, 'allowed':'yes'})
             # current_url = request.build_absolute_uri()
+        if 'submitanswer' in request.POST:
+            print(request.body)
+            # form = SeasonForm(request.POST)
+            # print(form.cleaned_data)
+            order_dict, zip_list, cont_ind_list = get_contestants_info('db.sqlite3', season)
+            for cont, other in zip_list:
+                formy = request.POST.get(other)
+            return render(request, 'website/games_pick.html', {'form':form, 'season':season,
+                                                                'zip_list':zip_list,
+                                                                'cont_ind_list':cont_ind_list,
+                                                                'allowed':'yes'})
 
     else:
         form = SeasonForm()
         order_dict, zip_list, cont_ind_list = get_contestants_info('db.sqlite3', season)
-
-        return render(request, 'website/games_pick.html', {'form':form, 'season':season, 'zip_list':zip_list, 'cont_ind_list':cont_ind_list, 'allowed':'yes'})
+        return render(request, 'website/games_pick.html', {'form':form,
+                                                           'season':season,
+                                                           'zip_list':zip_list,
+                                                           'cont_ind_list':cont_ind_list,
+                                                           'allowed':'yes'
+                                                           })
