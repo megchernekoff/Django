@@ -27,6 +27,20 @@ def get_conn(db):
     conn = sqlite3.connect(db)
     return conn
 
+# Returns a shuffled zipped list of contestants & their index
+# and the dictionary of their correct elimination order
+def get_contestants_info(db, season):
+    conn = get_conn(db)
+    df = pd.DataFrame(conn.execute("""select * from website_contestants where season_id = {}""".format(season)).fetchall())
+    cont_list = df[0].tolist()
+    order_dict = {}
+    for cont in range(len(cont_list)):
+        order_dict[cont_list[cont]] = cont
+    np.random.shuffle(cont_list)
+    cont_num = np.arange(1, len(cont_list) + 1)
+    zip_cont_list = zip(cont_list, cont_num)
+    return order_dict, zip_cont_list, cont_num
+
 
 def get_table_info(db, table, num):
     conn = get_conn(db)
@@ -34,6 +48,7 @@ def get_table_info(db, table, num):
     col_list = meta_df[1].to_list()
     df = pd.DataFrame(conn.execute("""select * from {0} where season_id = {1}""".format(table, num)).fetchall(), columns=col_list)
     return df
+
 
 def home(request):
     if request.method == 'POST':
@@ -76,22 +91,34 @@ def games(request):
             if form.is_valid() :
                 season = form.cleaned_data['season']
                 season_num = season
-                conn = get_conn('db.sqlite3')
-                df = pd.DataFrame(conn.execute("""select * from website_contestants where season_id = {}""".format(season_num)).fetchall())
-                cont_list = df[0].tolist()
-                order_dict = {}
-                for cont in range(len(cont_list)):
-                    order_dict[cont_list[cont]] = cont
-                np.random.shuffle(cont_list)
-                cont_num = np.arange(1, len(cont_list) + 1)
-                zip_cont_list = zip(cont_list, cont_num)
+                return redirect('/games/{}/'.format(season), {'season':season})
 
-                return render(request, 'website/games.html', {"form":form, "cont_num": cont_num, "zip_cont_list":zip_cont_list, 'allowed':'yes'})
+                # return render(request, 'website/games.html', {"form":form, "cont_num": cont_num, "zip_cont_list":zip_cont_list, 'allowed':'yes'})
         if 'submitanswer' in request.POST:
+            form = SeasonForm(request.POST)
+            print(form)
+            s = request.POST.get('season')
+            print(s)
             current_url = request.build_absolute_uri()
-            soup(current_url)
-            # print(request.build_absolute_uri())
-            return render(request, 'website/games.html')
+            return render(request, 'website/games.html', {'form':form})
     else:
         form = SeasonForm()
         return render(request, 'website/games.html', {'form':form, 'allowed':'no'})
+
+def games_pick(request, season):
+    if request.method == 'POST':
+        form = SeasonForm(request.POST)
+        if form.is_valid():
+            season = form.cleaned_data['season']
+            print(season)
+            order_dict, zip_list, cont_ind_list = get_contestants_info('db.sqlite3', season)
+            return redirect('/games/{}/'.format(season),
+                            {'form':form, 'season':season, 'zip_list':zip_list,
+                            'cont_ind_list':cont_ind_list, 'allowed':'yes'})
+            # current_url = request.build_absolute_uri()
+
+    else:
+        form = SeasonForm()
+        order_dict, zip_list, cont_ind_list = get_contestants_info('db.sqlite3', season)
+
+        return render(request, 'website/games_pick.html', {'form':form, 'season':season, 'zip_list':zip_list, 'cont_ind_list':cont_ind_list, 'allowed':'yes'})

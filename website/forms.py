@@ -14,7 +14,7 @@ for item in mylist:
 
 class SeasonForm(forms.Form):
     season = forms.CharField(required=True,
-                             widget=forms.Select(choices=TITLE_LIST), initial=2)
+                             widget=forms.Select(choices=TITLE_LIST))
     shuffle = forms.BooleanField(initial=False, required=False)
 
     def check_error(self):
@@ -22,3 +22,5 @@ class SeasonForm(forms.Form):
         if season == '':
             raise ValidationError('Please enter a season')
         return season
+
+    
