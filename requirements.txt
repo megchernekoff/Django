@@ -2,4 +2,4 @@ Django==2.2.5
 pandas
 numpy
 requests
-random
+sklearn
