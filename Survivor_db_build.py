@@ -2,14 +2,35 @@ import requests
 import random
 import re
 import pandas as pd
-from bs4 import BeautifulSoup as bs
 from io import StringIO
 import sqlite3
+from bs4 import BeautifulSoup as bs
 import numpy as np
 import warnings
 warnings.filterwarnings("ignore")
 
 FILEPATH = "https://en.wikipedia.org/wiki/Survivor_(American_TV_series)"
+
+def finish_clean(row):
+    regex_list = ['[0-9]+[\w]{2} voted out',
+                  'withdrew',
+                  'quit',
+                  'switched places'
+                  'eliminated'
+                  '.+runner.+',
+                  'runner.+',
+                  'eliminated.+'
+                  'medically evacuated'
+                  ]
+
+    combined = "(" + ")|(".join(regex_list) + ")"
+
+    mystring = 'Runner-up '
+    if re.match(combined, row.lower()):
+        result = re.match(combined, row.lower())
+        return result.group(0)
+    else:
+        return row
 
 def create_connection(db):
     conn = None
@@ -92,7 +113,7 @@ def get_clean_df(tab, snum, sname, snprem):
     df.fillna(0, inplace=True)
     df.rename(columns={'From':"Hometown", "Main game Finish":"Finish Placement"}, inplace=True)
     df = df.loc[(df['Contestant'] != 0) & (df['Hometown'] != 0)]
-
+    df['Finish Placement'] = df['Finish Placement'].apply(lambda x: finish_clean(x))
     contest = df[['Contestant', 'Age', 'Hometown', 'Finish Placement']]
     contest['Hometown'] = contest['Hometown'].apply(lambda x: x.replace(',', ', '))
     contest['Season'] = snum
@@ -120,13 +141,13 @@ if __name__ == '__main__':
     cursor = conn.cursor()
     iter = 0
     NUM = 1
-    for NUM in range(1, 43):
+    for NUM in range(1, 44):
         print(NUM)
         ct, st = main_function(NUM)
         ct_tuples = create_tuples(ct)
-        st_tuples = create_tuples(st)
-        for tup in st_tuples:
-            cursor.execute("""INSERT INTO website_season VALUES {}""".format(tup))
+        # st_tuples = create_tuples(st)
+        # for tup in st_tuples:
+        #     cursor.execute("""INSERT INTO website_season VALUES {}""".format(tup))
         for tup in ct_tuples:
             tup = tuple([iter]) + tup
             cursor.execute("""INSERT INTO website_contestants VALUES {}""".format(tup))

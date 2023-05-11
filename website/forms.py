@@ -13,8 +13,9 @@ for item in mylist:
 
 
 class SeasonForm(forms.Form):
-    season = forms.CharField(required=True,
-                             widget=forms.Select(choices=TITLE_LIST))
+    season = forms.CharField(required=True, max_length = 100,
+                             widget=forms.Select(choices=TITLE_LIST)
+                             )
     shuffle = forms.BooleanField(initial=False, required=False)
 
     def check_error(self):
@@ -23,4 +24,41 @@ class SeasonForm(forms.Form):
             raise ValidationError('Please enter a season')
         return season
 
-    
+
+
+class ResultForm(forms.Form):
+    def __init__(self, zip_list, elim_list, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        place, cont = zip(*zip_list)
+        choices_list = [(cont[i], cont[i]) for i in range(len(cont))]
+        self.correct_values = elim_list
+        for c in range(len(place)):
+            placement = place[c]
+            self.fields[placement] = forms.ChoiceField(widget = forms.Select(),
+                                     choices= choices_list, initial=cont[c],required=False)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        n = 0
+        for field_name, field_value in cleaned_data.items():
+            print(field_value)
+            print(self.correct_values[n])
+            if field_value != self.correct_values[n]:
+                self.fields[field_name].widget.attrs['class'] = 'incorrect'
+            else:
+                self.fields[field_name].widget.attrs['class'] = 'correct'
+
+
+                # self.add_error(field_name, "Incorrect selection")
+                # print(self.errors)
+                # print(cleaned_data.items())
+            n += 1
+
+        # for c in range(len(place)):
+        #     placement = place[c]
+        #     self.fields[placement].initial = str(c)
+        #
+        # for value, label in choices_list:
+        #     print(int(value))
+        #     print(label)
+        #     self.fields[placement].widget.choices[int(value)][1].update({'name': label})
