@@ -21,7 +21,7 @@ p {
 
 table, th, td {
   border: 1px solid;
-  width:50%;
+  /* width:50%; */
   font-size: 20px;
   padding: .25em;
 }

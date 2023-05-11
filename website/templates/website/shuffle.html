@@ -1,8 +1,8 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
-{% block title %} Results {% endblock %}
+{% block title %}Shuffler{% endblock %}
+
 {% block content %}
-
 <p>Please select a Season</p>
 <form action='' method='post'>
 {% csrf_token %}
@@ -15,8 +15,6 @@
   </p>
 <br>
 <button type="submit">Submit</button>
-
-<br>
 <br>
 <div class="half-width">
 <table style="width:50%; text-align: center; border-collapse: collapse; ">

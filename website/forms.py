@@ -41,24 +41,8 @@ class ResultForm(forms.Form):
         cleaned_data = super().clean()
         n = 0
         for field_name, field_value in cleaned_data.items():
-            print(field_value)
-            print(self.correct_values[n])
             if field_value != self.correct_values[n]:
                 self.fields[field_name].widget.attrs['class'] = 'incorrect'
             else:
                 self.fields[field_name].widget.attrs['class'] = 'correct'
-
-
-                # self.add_error(field_name, "Incorrect selection")
-                # print(self.errors)
-                # print(cleaned_data.items())
             n += 1
-
-        # for c in range(len(place)):
-        #     placement = place[c]
-        #     self.fields[placement].initial = str(c)
-        #
-        # for value, label in choices_list:
-        #     print(int(value))
-        #     print(label)
-        #     self.fields[placement].widget.choices[int(value)][1].update({'name': label})

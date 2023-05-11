@@ -3,7 +3,20 @@
 {% block title %}Welcome!{% endblock %}
 
 {% block content %}
-<a href='/games/1/'> Games</a>
+<div>
+<!-- style="background-color: #FCF5E5;
+color: brown;"> -->
+<table border="1" width=100%>
+  <th style="font-family: 'SURVIVOR', sans-serif;">
+    <a href='/'>Home</a>
+  </th>
+  <th style="font-family: 'SURVIVOR', sans-serif;">
+    <a href="/games/1">Elimination Order Game</a>
+    </th>
+  <th style="font-family: 'SURVIVOR', sans-serif;">
+    <a href='results/1/False/'>Spoiler-Free Contestant List 
+    </th>
+    </table>
 <h1>Welcome!</h1>
 <p>Please select a Season</p>
 <form action='' method='post'>
@@ -18,4 +31,8 @@
 <br>
 <button type="submit">Submit</button>
   </form>
+      <img style="border-radius: 45%; display: block; margin-left: auto; margin-right: auto;
+            width: 50%; height: 240px; width: 280px"
+            src="https://www.feistees.com/images/uploads/2010/10/survivor-logo-t-shirts-and-costume-tees.jpg">
+  </div>
 {% endblock %}

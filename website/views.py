@@ -29,13 +29,6 @@ def get_contestants_info(db, season):
     for cont in range(len(cont_list)):
         order_dict[place_list[cont]] = cont_list[cont]
     shuff_cont_list = shuffle_list(cont_list)
-    # print("shuffle contestant list")
-    # print(shuff_cont_list)
-    # correct_num_order = []
-    # for cont in cont_list:
-    #     correct_num_order.append(shuff_cont_list.index(cont))
-    # print('correct order list')
-    # print(correct_num_order)
     zip_cont_list = zip(place_list, shuff_cont_list)
     return order_dict, zip_cont_list, shuff_cont_list
 
@@ -49,38 +42,40 @@ def get_table_info(db, table, num):
 
 
 def home(request):
+    return render(request, 'website/home.html')
+
+
+def results(request, season=1, shuffle='False'):
     if request.method == 'POST':
         form = SeasonForm(request.POST)
         if form.is_valid():
             season = form.cleaned_data['season']
             shuffle = form.cleaned_data['shuffle']
-            return redirect('/results/{0}/{1}/'.format(season, shuffle),
-                            {'season':season, 'shuffle':shuffle})
+            if shuffle == 'False':
+                shuffle = ''
+            conn = get_conn('db.sqlite3')
+            cont_df = get_table_info('db.sqlite3', 'website_contestants', season)
+            seas_df = get_table_info('db.sqlite3', 'website_season', season)
+
+            if shuffle:
+                cont_df = cont_df.sample(frac=1)
+            cont_list = cont_df['contestant'].tolist()
+            age_list = cont_df['age'].tolist()
+            hometown_list = cont_df['hometown'].tolist()
+            cont_info = zip(cont_list, age_list, hometown_list)
+            snum, sname, snprem = seas_df.iloc[0].values
+            # return redirect('/results/{0}/{1}/'.format(season, shuffle),
+            #                 {'season':season, 'shuffle':shuffle})
+
+            return render(request, 'website/results.html', {'form':form, 'cont_info':cont_info,
+                                                            'snum':snum, 'sname':sname,
+                                                            'snprem':snprem})
         else:
             console.log('form is invalid')
     else:
         form = SeasonForm()
-    return render(request, 'website/home.html', {'form':form})
 
-
-def results(request, season, shuffle):
-    if shuffle == 'False':
-        shuffle = ''
-    conn = get_conn('db.sqlite3')
-    cont_df = get_table_info('db.sqlite3', 'website_contestants', season)
-    seas_df = get_table_info('db.sqlite3', 'website_season', season)
-
-    if shuffle:
-        cont_df = cont_df.sample(frac=1)
-    cont_list = cont_df['contestant'].tolist()
-    age_list = cont_df['age'].tolist()
-    hometown_list = cont_df['hometown'].tolist()
-    cont_info = zip(cont_list, age_list, hometown_list)
-    snum, sname, snprem = seas_df.iloc[0].values
-
-    return render(request, 'website/results.html', {'cont_info':cont_info,
-                                                    'snum':snum, 'sname':sname,
-                                                    'snprem':snprem})
+    return render(request, 'website/results.html', {'form':form})
 
 def games(request, season):
     if request.method == 'POST':
@@ -113,8 +108,7 @@ def games(request, season):
                             "results": results,
                             'give':'no'
                             }
-                # return render(request, 'website/temp.html', context)
-                return render(request, 'website/games_v2.html', context)
+                return render(request, 'website/games.html', context)
         if 'giveup' in request.POST:
             order_dict, zip_list, cont_list = get_contestants_info('db.sqlite3', season)
             elim_data = list(order_dict.values())
@@ -122,17 +116,13 @@ def games(request, season):
             if second_form.is_valid():
                 form_data = list(second_form.cleaned_data.values())
                 results = zip(form_data, elim_data)
-                    # context = {
-                    #         'first_form': first_form,
-                    #         'second_form': second_form,
-                    #         'give':'yes'
-                    #         }
-                return render(request, 'website/games_v2.html',
-                                    {'first_form': first_form,
-                                     'second_form': second_form,
-                                     "results":results,
-                                     'give':'yes'
-                                    })
+                context = {
+                            'first_form': first_form,
+                            'second_form': second_form,
+                            'results':results,
+                            'give':'yes'
+                        }
+                return render(request, 'website/games.html', context)
 
         return redirect('/games/{}/'.format(season), context)
 
@@ -145,58 +135,4 @@ def games(request, season):
                     'first_form': first_form,
                     'second_form': second_form,
                     }
-        return render(request, 'website/games_v2.html', context)
-
-# def games(request):
-#     if request.method == 'POST':
-#         if 'startgame' in request.POST:
-#             form = SeasonForm(request.POST)
-#             if form.is_valid() :
-#                 season = form.cleaned_data['season']
-#                 # season_num = season
-#                 return redirect('/games/{}/'.format(season), {'season':season})
-#
-#                 # return render(request, 'website/games.html', {"form":form, "cont_num": cont_num, "zip_cont_list":zip_cont_list, 'allowed':'yes'})
-#         if 'submitanswer' in request.POST:
-#             form = SeasonForm(request.POST)
-#             # print(form)
-#             s = request.POST.get('season')
-#             # print(s)
-#             current_url = request.build_absolute_uri()
-#             return render(request, 'website/games.html', {'form':form})
-#     else:
-#         form = SeasonForm()
-#         return render(request, 'website/games.html', {'form':form, 'allowed':'no'})
-#
-# def games_pick(request, season):
-#     if request.method == 'POST':
-#         form = SeasonForm(request.POST)
-#         if form.is_valid():
-#             season = form.cleaned_data['season']
-#             order_dict, zip_list, cont_list = get_contestants_info('db.sqlite3', season)
-#             # mform = ResultForm(zip_list)
-#             return redirect('/games/{}/'.format(season),
-#                             {'form':form, 'season':season, 'zip_list':zip_list,
-#                             'cont_list':cont_list, 'allowed':'yes'})
-#             # current_url = request.build_absolute_uri()
-#         if 'submitanswer' in request.POST:
-#             order_dict, zip_list, cont_list = get_contestants_info('db.sqlite3', season)
-#             # place, cont = zip(*zip_list)
-#             form = ResultForm(zip_list, request.POST)
-#
-#             for cont, other in zip_list:
-#                 formy = request.POST.get(other)
-#             return render(request, 'website/temp.html', {'form':form, 'season':season,
-#                                                                 'zip_list':zip_list,
-#                                                                 'cont_list':cont_list,
-#                                                                 'allowed':'yes'})
-#
-#     else:
-#         form = SeasonForm()
-#         order_dict, zip_list, cont_list = get_contestants_info('db.sqlite3', season)
-#         return render(request, 'website/games_pick.html', {'form':form,
-#                                                            'season':season,
-#                                                            'zip_list':zip_list,
-#                                                            'cont_list':cont_list,
-#                                                            'allowed':'yes'
-#                                                            })
+        return render(request, 'website/games.html', context)

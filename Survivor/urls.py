@@ -22,7 +22,5 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("", home, name='home'),
     path("results/<int:season>/<str:shuffle>/", results, name='results'),
-    # path("games/", games, name='games'),
     path("games/<int:season>/", games, name='games'),
-    # path('temp/', games_pick, name='parrt_two')
 ]

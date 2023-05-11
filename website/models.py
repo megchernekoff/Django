@@ -1,6 +1,5 @@
 from django.db import models
 
-# Create your models here.
 class Season(models.Model):
     season_id = models.IntegerField(default=1, primary_key=True, null=False)
     season_name = models.CharField(max_length=50, null=True)
